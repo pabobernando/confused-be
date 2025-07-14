@@ -1,0 +1,19 @@
+{
+  "apps": [
+    {
+      "name": "bestforia-be",
+      "script": "dist/app.js",
+      "instances": "max",
+      "exec_mode": "cluster",
+      "watch": false,
+      "autorestart": true,
+      "ignore_watch": ["node_modules", "logs", "public"],
+      "log_file": "~/.pm2/logs/bestforia-be-out.log",
+      "error_file": "~/.pm2/logs/bestforia-be-error.log",
+      "time": true,
+      "env_production": {
+        "NODE_ENV": "production"
+      }
+    }
+  ]
+}

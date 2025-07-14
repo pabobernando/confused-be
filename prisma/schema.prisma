@@ -1,0 +1,57 @@
+// schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id       String @id @default(uuid())
+  username String @unique
+  password String
+}
+
+model Tournament {
+  id               String           @id @default(uuid())
+  title            String
+  poster           String
+  location         String
+  description      String
+  date             DateTime
+  price            String
+  tournamentParticipants TournamentParticipant[]
+}
+
+model Team {
+  id               String           @id @default(uuid())
+  name             String           @unique  // This ensures team names are globally unique
+  contact          String
+  logo             String
+  player           String[]
+  payment_status   String           @default("PENDING")
+  payment_quantity Int              @default(0)
+  teamParticipants TournamentParticipant[]
+}
+
+model TournamentParticipant {
+  id           String   @id @default(uuid())  // Add unique ID
+  tournamentId String
+  teamId       String
+  registeredAt DateTime @default(now())
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  team         Team       @relation(fields: [teamId], references: [id])
+  
+  // Remove the composite primary key to allow duplicates
+  // @@id([tournamentId, teamId])  <- Remove this line
+}
+
+model Gallery {
+  id               String         @id @default(uuid())
+  title            String
+  image            String
+  description      String
+}

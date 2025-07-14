@@ -1,0 +1,5 @@
+id,name,contact,logo,player,payment_status
+team-a-id,Alpha Squad,alpha@example.com,alpha_logo.png,"PlayerA1,PlayerA2,PlayerA3",PAID
+team-b-id,Beta Warriors,beta@example.com,beta_logo.png,"PlayerB1,PlayerB2,PlayerB3,PlayerB4",PENDING
+team-c-id,Gamma Gamers,gamma@example.com,gamma_logo.png,"PlayerC1,PlayerC2",PAID
+team-d-id,Delta Force,delta@example.com,delta_logo.png,"PlayerD1,PlayerD2,PlayerD3,PlayerD4",PENDING
