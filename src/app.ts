@@ -33,6 +33,7 @@ const app = Fastify({
           },
           level: "info",
         },
+  bodyLimit: 3 * 1024 * 1024, // 3MB limit to handle 2MB base64 data with overhead
   ajv: {
     customOptions: {
       strict: false, // Disable strict mode to allow unknown keywords
