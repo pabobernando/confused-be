@@ -1,5 +1,1 @@
 id,name,contact,logo,player,payment_status
-6277cab6-7ac0-411b-9b18-24aa77b6e7ef,Alpha Squad,alpha@example.com,alpha_logo.png,"PlayerA1,PlayerA2,PlayerA3",PAID
-0e9aea3d-b9a3-401e-b9d1-7b1b4fe3c0ec,Beta Warriors,beta@example.com,beta_logo.png,"PlayerB1,PlayerB2,PlayerB3,PlayerB4",PENDING
-6e044c29-c01d-4bb0-902c-7120c6464023,Gamma Gamers,gamma@example.com,gamma_logo.png,"PlayerC1,PlayerC2",PAID
-24c7f97d-53e3-4058-9c9c-7eed4e429ea1,Delta Force,delta@example.com,delta_logo.png,"PlayerD1,PlayerD2,PlayerD3,PlayerD4",PENDING

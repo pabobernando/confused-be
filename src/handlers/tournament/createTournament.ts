@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 // Define the shape of the request body for creating a tournament
 export interface CreateTournamentBody {
   title: string;
-  poster: string;
+  poster: string; // Base64 string (with or without data URL prefix)
   location: string;
   description: string;
   date: string; // Will be parsed to Date
@@ -16,10 +16,10 @@ export interface CreateTournamentBody {
 
 // Define the schema for Swagger documentation and Fastify validation
 const createTournamentSchema = {
-  tags: ["Tournament"], // Tag for Swagger UI organization
+  tags: ["Tournament"],
   summary: "Create a new Tournament (Admin Only)",
   description: "Creates a new tournament record in the database.",
-  security: [{ BearerAuth: [] }], // Changed from bearerAuth to BearerAuth to match docs.ts
+  security: [{ BearerAuth: [] }],
   body: {
     type: "object",
     required: ["title", "poster", "location", "description", "date", "price"],
@@ -27,8 +27,8 @@ const createTournamentSchema = {
       title: { type: "string", minLength: 3, example: "Summer Showdown" },
       poster: {
         type: "string",
-        format: "uri",
-        example: "https://example.com/poster.jpg",
+        description: "Tournament poster image as base64 encoded string",
+        example: "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k=",
       },
       location: { type: "string", example: "Online" },
       description: { type: "string", example: "Annual esports tournament." },
@@ -36,7 +36,7 @@ const createTournamentSchema = {
         type: "string",
         format: "date-time",
         example: "2025-09-01T10:00:00Z",
-      }, // ISO 8601 format
+      },
       price: { type: "string", example: "50 USD" },
     },
   },
@@ -50,7 +50,7 @@ const createTournamentSchema = {
           properties: {
             id: { type: "string" },
             title: { type: "string" },
-            poster: { type: "string" },
+            poster: { type: "string", description: "Base64 encoded image" },
             location: { type: "string" },
             date: { type: "string", format: "date-time" },
           },
@@ -84,13 +84,14 @@ const createTournamentSchema = {
   },
 };
 
-// The handler function for the route - made more generic
+// The handler function for the route
 export async function createTournamentHandler(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
-    const { title, poster, location, description, date, price } = request.body as CreateTournamentBody;
+    const { title, poster, location, description, date, price } =
+      request.body as CreateTournamentBody;
 
     // Parse the date string into a Date object
     const tournamentDate = new Date(date);
@@ -103,10 +104,19 @@ export async function createTournamentHandler(
       });
     }
 
+    // Simple validation for base64 format (optional)
+    if (!poster || poster.trim() === "") {
+      return reply.code(400).send({
+        statusCode: 400,
+        error: "Bad Request",
+        message: "Poster field is required.",
+      });
+    }
+
     const tournament = await prisma.tournament.create({
       data: {
         title,
-        poster,
+        poster, // Store directly as string
         location,
         description,
         date: tournamentDate,
@@ -123,7 +133,10 @@ export async function createTournamentHandler(
 
     reply.code(201).send({
       message: "Tournament created successfully",
-      tournament,
+      tournament: {
+        ...tournament,
+        date: tournament.date.toISOString(),
+      },
     });
   } catch (error) {
     request.log.error("Error creating tournament:", error);
@@ -135,7 +148,7 @@ export async function createTournamentHandler(
   }
 }
 
-// Export the handler and schema following your pattern
+// Export the handler and schema
 export const createTournament = {
   handler: createTournamentHandler,
   schema: createTournamentSchema,

@@ -17,8 +17,12 @@ const getAllTournamentSchema = {
         properties: {
           id: { type: "string" },
           title: { type: "string" },
-          poster: { type: "string" },
+          poster: {
+            type: "string",
+            description: "Base64 encoded image string",
+          },
           location: { type: "string" },
+          description: { type: "string" },
           date: { type: "string", format: "date-time" },
           price: { type: "string" },
         },
@@ -43,26 +47,23 @@ export async function getAllTournamentHandler(
   try {
     const tournaments = await prisma.tournament.findMany({
       select: {
-        // Select only fields you want to expose
         id: true,
         title: true,
-        poster: true,
+        poster: true, // Now directly returns string
         location: true,
         description: true,
         date: true,
         price: true,
-        // You could include related data like participants here if needed:
-        // tournamentParticipants: {
-        //   select: {
-        //     team: {
-        //       select: { id: true, name: true }
-        //     }
-        //   }
-        // }
       },
     });
 
-    reply.code(200).send(tournaments);
+    // Simple transformation to ensure date is in ISO format
+    const transformedTournaments = tournaments.map((tournament) => ({
+      ...tournament,
+      date: tournament.date.toISOString(),
+    }));
+
+    reply.code(200).send(transformedTournaments);
   } catch (error) {
     request.log.error("Error getting all tournaments:", error);
     reply.code(500).send({

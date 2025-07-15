@@ -1,23 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the `Order` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `Peserta` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `User` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropForeignKey
-ALTER TABLE "Peserta" DROP CONSTRAINT "Peserta_orderId_fkey";
-
--- DropTable
-DROP TABLE "Order";
-
--- DropTable
-DROP TABLE "Peserta";
-
--- DropTable
-DROP TABLE "User";
-
 -- CreateTable
 CREATE TABLE "Admin" (
     "id" TEXT NOT NULL,
@@ -31,7 +11,7 @@ CREATE TABLE "Admin" (
 CREATE TABLE "Tournament" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
-    "poster" TEXT NOT NULL,
+    "poster" BYTEA NOT NULL,
     "location" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "date" TIMESTAMP(3) NOT NULL,
@@ -48,17 +28,19 @@ CREATE TABLE "Team" (
     "logo" TEXT NOT NULL,
     "player" TEXT[],
     "payment_status" TEXT NOT NULL DEFAULT 'PENDING',
+    "payment_quantity" INTEGER NOT NULL DEFAULT 0,
 
     CONSTRAINT "Team_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "TournamentParticipant" (
+    "id" TEXT NOT NULL,
     "tournamentId" TEXT NOT NULL,
     "teamId" TEXT NOT NULL,
     "registeredAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "TournamentParticipant_pkey" PRIMARY KEY ("tournamentId","teamId")
+    CONSTRAINT "TournamentParticipant_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -73,6 +55,9 @@ CREATE TABLE "Gallery" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Admin_username_key" ON "Admin"("username");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Team_name_key" ON "Team"("name");
 
 -- AddForeignKey
 ALTER TABLE "TournamentParticipant" ADD CONSTRAINT "TournamentParticipant_tournamentId_fkey" FOREIGN KEY ("tournamentId") REFERENCES "Tournament"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

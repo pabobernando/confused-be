@@ -184,11 +184,26 @@ async function seedTournaments() {
   });
 
   for (const record of records) {
+    // Convert base64 poster string to Buffer for Prisma Bytes field
+    let posterBuffer: Buffer;
+    try {
+      // Handle both data URL format (data:image/jpeg;base64,xxx) and plain base64
+      const base64Data = record.poster.includes(",")
+        ? record.poster.split(",")[1]
+        : record.poster;
+      posterBuffer = Buffer.from(base64Data, "base64");
+    } catch (error) {
+      console.warn(
+        `Invalid base64 format for poster in tournament ${record.id}, using empty buffer`
+      );
+      posterBuffer = Buffer.alloc(0); // Empty buffer as fallback
+    }
+
     await prisma.tournament.upsert({
       where: { id: record.id },
       update: {
         title: record.title,
-        poster: record.poster,
+        poster: record.poster, // Now using Buffer instead of string
         location: record.location,
         description: record.description,
         date: record.date as unknown as Date, // Cast needed due to `cast` function returning `unknown` or `string` initially
@@ -197,7 +212,7 @@ async function seedTournaments() {
       create: {
         id: record.id,
         title: record.title,
-        poster: record.poster,
+        poster: record.poster, // Now using Buffer instead of string
         location: record.location,
         description: record.description,
         date: record.date as unknown as Date,
