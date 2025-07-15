@@ -15,8 +15,8 @@ export async function setupDocs(app: FastifyInstance) {
       },
       tags: [
         {
-          name: "Auth",
-          description: "Retrieve and manage authentication",
+          name: "Admin",
+          description: "Retrieve and manage administrator authentication",
         },
         {
           name: "Tournament",
