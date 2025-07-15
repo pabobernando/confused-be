@@ -1,6 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { tournament } from "../handlers/tournament";
-import { CreateTournamentBody } from "../handlers/tournament/createTournament";
 import { team } from "../handlers/team";
 
 declare module "fastify" {
@@ -49,18 +48,6 @@ export async function privateRoutes(app: FastifyInstance) {
     tournament.create.handler
   );
 
-  app.get(
-    "/tournaments",
-    { schema: tournament.getAll.schema, preHandler: [app.authenticate] },
-    tournament.getAll.handler
-  );
-
-  app.get(
-    "/tournament/:id",
-    { schema: tournament.getById.schema, preHandler: [app.authenticate] },
-    tournament.getById.handler
-  );
-
   app.put(
     "/tournament/:id",
     { schema: tournament.update.schema, preHandler: [app.authenticate] },
@@ -71,18 +58,6 @@ export async function privateRoutes(app: FastifyInstance) {
     "/tournament/:id",
     { schema: tournament.delete.schema, preHandler: [app.authenticate] },
     tournament.delete.handler
-  );
-
-  app.get(
-    "/teams",
-    { schema: team.getAll.schema, preHandler: [app.authenticate] },
-    team.getAll.handler
-  );
-
-  app.get(
-    "/team/:id",
-    { schema: team.getById.schema, preHandler: [app.authenticate] },
-    team.getById.handler
   );
 
   app.put(

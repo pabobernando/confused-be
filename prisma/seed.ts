@@ -40,6 +40,7 @@ interface TournamentCsvRecord {
 }
 
 interface TournamentParticipantCsvRecord {
+  id?: string; // Optional ID for explicit seeding
   tournamentId: string;
   teamId: string;
 }
@@ -232,23 +233,33 @@ async function seedTournamentParticipants() {
   });
 
   for (const record of records) {
-    await prisma.tournamentParticipant.upsert({
-      where: {
-        tournamentId_teamId: {
-          // This is the composite unique ID
+    // Since we removed the composite primary key, we can't use tournamentId_teamId
+    // Instead, we'll create new records or use the id if provided
+    if (record.id) {
+      // If ID is provided in CSV, use upsert with id
+      await prisma.tournamentParticipant.upsert({
+        where: { id: record.id },
+        update: {
           tournamentId: record.tournamentId,
           teamId: record.teamId,
         },
-      },
-      update: {
-        /* No fields to update usually for a junction table beyond its ID */
-      },
-      create: {
-        tournamentId: record.tournamentId,
-        teamId: record.teamId,
-        // registeredAt will default to now() if not provided in CSV
-      },
-    });
+        create: {
+          id: record.id,
+          tournamentId: record.tournamentId,
+          teamId: record.teamId,
+          // registeredAt will default to now() if not provided in CSV
+        },
+      });
+    } else {
+      // If no ID provided, just create new records
+      await prisma.tournamentParticipant.create({
+        data: {
+          tournamentId: record.tournamentId,
+          teamId: record.teamId,
+          // registeredAt will default to now()
+        },
+      });
+    }
   }
   console.log(`${records.length} tournament participants seeded from CSV.`);
 }
